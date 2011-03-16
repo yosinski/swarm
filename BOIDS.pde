@@ -6,14 +6,16 @@ class Boid {
   float r;
   float maxforce;    // Maximum steering force
   float maxspeed;    // Maximum speed
+  boolean updateVel;
 
-    Boid(PVector l, float ms, float mf) {
+    Boid(PVector l, float ms, float mf, boolean _updateVel) {
     acc = new PVector(0,0,0);
     vel = new PVector(random(-1,1),random(-1,1),0);
     loc = l.get();
     r = 2.0;
     maxspeed = ms;
     maxforce = mf;
+    updateVel = _updateVel;
   }
 
   void run(ArrayList boids) {
@@ -40,11 +42,15 @@ class Boid {
 
   // Method to update location
   void update() {
-    // Update velocity
-    //vel.add(acc);
-    // Limit speed
-    //vel.limit(maxspeed);
-    loc.add(acc);
+    if (updateVel) {
+      loc.add(acc);
+    } else {
+      // Update velocity
+      vel.add(acc);
+      // Limit speed
+      //vel.limit(maxspeed);
+      loc.add(vel);
+    }
     // Reset accelertion to 0 each cycle
     acc.mult(0);
   }
@@ -85,17 +91,11 @@ class Boid {
     float theta = vel.heading2D() + PI/2;
     fill(200,100);
     stroke(255);
-    strokeWeight(3);
+    strokeWeight(5);
     pushMatrix();
     point(loc.x,loc.y,loc.z);
-    rotate(theta);
-    /*
-    beginShape(TRIANGLES);
-     vertex(0, -r*2);
-     vertex(-r, r*2);
-     vertex(r, r*2);
-     endShape();
-     */
+      //sphere(2);
+    
     popMatrix();
   }
 
@@ -127,8 +127,10 @@ class Boid {
         PVector diff = PVector.sub(loc,other.loc);
         diff.normalize();
 
-        diff.mult(exp(-dd/attractiveScale) - 2*exp(-dd/repulsiveScale));
-        diff.mult(.1);
+        //diff.mult(exp(-dd/attractiveScale) - 2*exp(-dd/repulsiveScale));
+        diff.mult(-exp(-dd/50) + 2*cos(dd/10));
+
+        diff.mult(-1. / boids.size());
 
         steer.sub(diff);
       }

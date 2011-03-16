@@ -18,21 +18,24 @@ void setup() {
 
   cam = new PeasyCam(this, 200);
   cam.setMinimumDistance(50);
-  cam.setMaximumDistance(500);
+  cam.setMaximumDistance(1000);
   perspective(fov, float(width)/float(height), 2, 10000.0);
+  float camLen = 500;
+  camera(sin(radians(frameCount))*camLen+ENV_X/2, cos(radians(frameCount))*camLen+ENV_X/2,camLen*.8,ENV_X/2,ENV_X/2,0, 0.0,0.0,-1);
 
   flock = new Flock();
   // Add an initial set of boids into the system
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 300; i++) {
     //flock.addBoid(new Boid(new PVector(ENV_X/2, ENV_Y/2, ENV_Z/2), 3.0, 0.05));
-    flock.addBoid(new Boid(new PVector(random(ENV_X/2-10, ENV_X/2+10), random(ENV_Y/2-10, ENV_Y/2+10),  random(ENV_Z/2-10, ENV_Z/2+10)), 1.0, 0.05));
+      float windowSize = 50;
+    flock.addBoid(new Boid(new PVector(random(ENV_X/2-windowSize, ENV_X/2+windowSize), random(ENV_Y/2-windowSize, ENV_Y/2+windowSize),  random(ENV_Z/2-windowSize, ENV_Z/2+windowSize)), 1.0, 0.05, true));
   }
 }
 
 void draw() {
   background(50);
   float camLen = 500;
-  camera(sin(radians(frameCount))*camLen+ENV_X/2, cos(radians(frameCount))*camLen+ENV_X/2,camLen*.8,ENV_X/2,ENV_X/2,0, 0.0,0.0,-1);
+  //camera(sin(radians(frameCount))*camLen+ENV_X/2, cos(radians(frameCount))*camLen+ENV_X/2,camLen*.8,ENV_X/2,ENV_X/2,0, 0.0,0.0,-1);
   flock.run();
 
   pushMatrix();
