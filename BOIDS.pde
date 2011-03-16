@@ -19,32 +19,32 @@ class Boid {
   void run(ArrayList boids) {
     flock(boids);
     update();
-    borders();
+    //borders();
     render();
   }
 
   // We accumulate a new acceleration each time based on three rules
   void flock(ArrayList boids) {
     PVector sep = separate(boids);   // Separation
-    PVector ali = align(boids);      // Alignment
-    PVector coh = cohesion(boids);   // Cohesion
+    //PVector ali = align(boids);      // Alignment
+    //PVector coh = cohesion(boids);   // Cohesion
     // Arbitrarily weight these forces
-    sep.mult(1.5);
-    ali.mult(1.0);
-    coh.mult(1.0);
+    sep.mult(1.0);
+    //ali.mult(1.0);
+    //coh.mult(1.0);
     // Add the force vectors to acceleration
     acc.add(sep);
-    acc.add(ali);
-    acc.add(coh);
+    //acc.add(ali);
+    //acc.add(coh);
   }
 
   // Method to update location
   void update() {
     // Update velocity
-    vel.add(acc);
+    //vel.add(acc);
     // Limit speed
-    vel.limit(maxspeed);
-    loc.add(vel);
+    //vel.limit(maxspeed);
+    loc.add(acc);
     // Reset accelertion to 0 each cycle
     acc.mult(0);
   }
@@ -91,11 +91,11 @@ class Boid {
     rotate(theta);
     /*
     beginShape(TRIANGLES);
-    vertex(0, -r*2);
-    vertex(-r, r*2);
-    vertex(r, r*2);
-    endShape();
-    */
+     vertex(0, -r*2);
+     vertex(-r, r*2);
+     vertex(r, r*2);
+     endShape();
+     */
     popMatrix();
   }
 
@@ -109,9 +109,37 @@ class Boid {
     if (loc.z > ENV_Z) loc.z = 0;
   }
 
-  // Separation
+  // Separation - New
   // Method checks for nearby boids and steers away
   PVector separate (ArrayList boids) {
+    float attractiveScale = 1500;
+    float repulsiveScale  = 300;
+
+    PVector steer = new PVector(0,0,0);
+    int count = 0;
+    // For every boid in the system, check if it's too close
+    for (int ii = 0 ; ii < boids.size(); ii++) {
+      Boid other = (Boid) boids.get(ii);
+      float dd = PVector.dist(loc,other.loc);
+      // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+      if (dd > 0) {
+        // Calculate vector pointing away from neighbor
+        PVector diff = PVector.sub(loc,other.loc);
+        diff.normalize();
+
+        diff.mult(exp(-dd/attractiveScale) - 2*exp(-dd/repulsiveScale));
+        diff.mult(.1);
+
+        steer.sub(diff);
+      }
+    }
+
+    return steer;
+  }
+
+  // Separation - OLD
+  // Method checks for nearby boids and steers away
+  PVector separate_OLD (ArrayList boids) {
     float desiredseparation = 20.0;
     PVector steer = new PVector(0,0,0);
     int count = 0;
@@ -195,3 +223,4 @@ class Boid {
     return sum;
   }
 }
+
